@@ -58,7 +58,7 @@ class ManageMaven:
 
         if ask_directory != '':
             # 清空
-            # self.askdirectory_entry.select_clear()
+            self.askdirectory_entry.delete(0, tkinter.END)
             # 将选择的文件夹放入文件夹输入框
             self.askdirectory_entry.insert(0, ask_directory)
 
