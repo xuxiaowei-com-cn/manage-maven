@@ -124,16 +124,14 @@ class ManageMaven:
                 self.upload_address_entry.config(
                     width=int((self.root.winfo_width() - (70 + 2) - (91 + 2) - 10 * 2) / 7))
 
-                # 20：左右边距
-                self.text_area.place(x=self.text_x, y=self.text_y, height=self.height - self.text_y - 20,
-                                     width=self.width - self.text_x * 2)
+                self.text_area.config(width=int((self.width - self.text_x * 2) / 7),
+                                      height=int((self.height - self.text_y) / 14))
 
             if self.height != self.root.winfo_height():
                 self.height = self.root.winfo_height()
 
-                # 20：左右边距
-                self.text_area.place(x=self.text_x, y=self.text_y, height=self.height - self.text_y - 20,
-                                     width=self.width - self.text_x * 2)
+                self.text_area.config(width=int((self.width - self.text_x * 2) / 7),
+                                      height=int((self.height - self.text_y) / 14))
 
     def __init__(self):
         """
@@ -155,8 +153,8 @@ class ManageMaven:
         self.button_width = 12
 
         # 文本 绝对位置
-        self.text_x = 15
-        self.text_y = 120
+        self.text_x = 10
+        self.text_y = 100
 
         x = self.root.winfo_screenwidth() / 2 - self.width / 2
         # 空出任务栏高度
@@ -187,7 +185,7 @@ class ManageMaven:
         # 边框 2
         self.askdirectory_entry = tkinter.Entry(self.root, state=tkinter.DISABLED,
                                                 width=int((self.width - (70 + 2) - (91 + 2) - 10 * 2) / 7))
-        self.askdirectory_entry.grid(row=0, column=1)
+        self.askdirectory_entry.grid(row=0, column=1, pady=10)
 
         # 上传文件夹选择按钮
         self.askdirectory_button = tkinter.Button(self.root, text="选择文件夹", width=self.button_width,
@@ -231,10 +229,10 @@ class ManageMaven:
         # self.upload_type_checkbutton.place(x=90, y=106)
 
         # 日志 文本
-        self.text_area = tkinter.Text(self.root, bg='black', fg='white')
-        # 20：左右边距
-        self.text_area.place(x=self.text_x, y=self.text_y, height=self.height - self.text_y - 20,
-                             width=self.width - self.text_x * 2)
+        self.text_area = tkinter.Text(self.root, bg='black', fg='white', width=int((self.width - self.text_x * 2) / 7),
+                                      height=int((self.height - self.text_y) / 14))
+
+        self.text_area.grid(row=4, columnspan=3, padx=self.text_x, pady=self.text_x)
 
         # 文本处理器
         text_handler = TextHandler(self.text_area)
