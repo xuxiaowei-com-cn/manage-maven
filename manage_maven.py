@@ -221,6 +221,14 @@ class ManageMaven:
         :return:
         """
 
+        if self.askdirectory_entry.get() == '':
+            ctypes.windll.user32.MessageBoxA(0, f"上传文件夹不能为空".encode('gbk'), "上传文件夹错误".encode('gbk'), 0x10)
+            return
+
+        if self.upload_address_entry.get() == '':
+            ctypes.windll.user32.MessageBoxA(0, f"上传地址不能为空".encode('gbk'), "上传地址错误".encode('gbk'), 0x10)
+            return
+
         logging.info(f'上传文件夹：{self.askdirectory_entry.get()}')
         logging.info(f'上传用户名：{self.username_entry.get()}')
         logging.info(f'上传地址：{self.upload_address_entry.get()}')
