@@ -16,6 +16,7 @@
         - 打包文件名
 
     ```shell
+    pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
     pip install PyInstaller
     PyInstaller -F -w -i static/favicon.ico manage_maven.py -n "Maven 管理"
     ```
