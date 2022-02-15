@@ -111,6 +111,10 @@ class ManageMaven:
         # 设置窗口的大小与位置
         # self.root.geometry("800x600+368+107")
         self.root.geometry('%dx%d+%d+%d' % (width, height, x, y))
+        # 最小屏幕
+        self.root.minsize(width, height)
+        # 最大屏幕
+        # self.root.maxsize(width, height)
 
         # 创建一个Canvas
         # 设置其背景色为白色：bg='white'
