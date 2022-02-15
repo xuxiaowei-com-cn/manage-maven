@@ -110,6 +110,31 @@ class ManageMaven:
         # 添加处理程序
         logger.addHandler(sh)
 
+    def window_resize(self, event=None):
+        """
+        窗口重置
+        """
+        if event is not None:
+            if self.width != self.root.winfo_width():
+                self.width = self.root.winfo_width()
+
+                self.askdirectory_entry.config(width=int((self.root.winfo_width() - (70 + 2) - (91 + 2) - 10 * 2) / 7))
+                self.username_entry.config(width=int((self.root.winfo_width() - (70 + 2) - (91 + 2) - 10 * 2) / 7))
+                self.password_entry.config(width=int((self.root.winfo_width() - (70 + 2) - (91 + 2) - 10 * 2) / 7))
+                self.upload_address_entry.config(
+                    width=int((self.root.winfo_width() - (70 + 2) - (91 + 2) - 10 * 2) / 7))
+
+                # 20：左右边距
+                self.text_area.place(x=self.text_x, y=self.text_y, height=self.height - self.text_y - 20,
+                                     width=self.width - self.text_x * 2)
+
+            if self.height != self.root.winfo_height():
+                self.height = self.root.winfo_height()
+
+                # 20：左右边距
+                self.text_area.place(x=self.text_x, y=self.text_y, height=self.height - self.text_y - 20,
+                                     width=self.width - self.text_x * 2)
+
     def __init__(self):
         """
         初始化
@@ -119,76 +144,97 @@ class ManageMaven:
         self.root = tkinter.Tk()
         self.root.title("管理 Maven")
 
-        # 窗口大小
-        width = 800
-        height = 600
+        # 窗口重置
+        self.root.bind('<Configure>', self.window_resize)
 
-        x = self.root.winfo_screenwidth() / 2 - width / 2
+        # 窗口大小
+        self.width = 800
+        self.height = 600
+
+        # 按钮宽度
+        self.button_width = 12
+
+        # 文本 绝对位置
+        self.text_x = 15
+        self.text_y = 120
+
+        x = self.root.winfo_screenwidth() / 2 - self.width / 2
         # 空出任务栏高度
-        y = (self.root.winfo_screenheight() - 50) / 2 - height / 2
+        y = (self.root.winfo_screenheight() - 50) / 2 - self.height / 2
 
         # 设置窗口的大小与位置
         # self.root.geometry("800x600+368+107")
-        self.root.geometry('%dx%d+%d+%d' % (width, height, x, y))
+        self.root.geometry('%dx%d+%d+%d' % (self.width, self.height, x, y))
         # 最小屏幕
-        self.root.minsize(width, height)
+        self.root.minsize(self.width, self.height)
         # 最大屏幕
-        # self.root.maxsize(width, height)
+        # self.root.maxsize(self.width, self.height)
 
         # 创建一个Canvas
         # 设置其背景色为白色：bg='white'
         self.cv = tkinter.Canvas(self.root)
 
-        tkinter.Label(self.root, text="文件夹：").grid(row=0, padx=10)
+        # ipadx：X轴 内部填充
+        # ipady：Y轴 内部填充
+        # padx：X轴 外部填充
+        # pady：Y轴 外部填充
+        tkinter.Label(self.root, text="文件夹").grid(row=0, padx=14)
 
         # 上传文件夹输入框
-        self.askdirectory_entry = tkinter.Entry(self.root, state=tkinter.DISABLED, width=80)
-        # padx：X 坐标
-        # pady：Y 坐标
+        # 左侧 Label 设置 padx=14 时，宽度为 70（5倍）
+        # 右侧按钮 91
+        # 右侧按钮左右外边距 10
+        # 边框 2
+        self.askdirectory_entry = tkinter.Entry(self.root, state=tkinter.DISABLED,
+                                                width=int((self.width - (70 + 2) - (91 + 2) - 10 * 2) / 7))
         self.askdirectory_entry.grid(row=0, column=1)
 
         # 上传文件夹选择按钮
-        self.askdirectory_button = tkinter.Button(self.root, text="选择上传的文件夹", width=16,
+        self.askdirectory_button = tkinter.Button(self.root, text="选择文件夹", width=self.button_width,
                                                   command=self.askdirectory_command)
         self.askdirectory_button.grid(row=0, column=2, padx=10)
 
-        tkinter.Label(self.root, text="用户名：").grid(row=1, padx=10)
+        tkinter.Label(self.root, text="用户名").grid(row=1)
 
         # 用户名输入框
-        self.username_entry = tkinter.Entry(self.root, width=80)
+        self.username_entry = tkinter.Entry(self.root, width=int((self.width - (70 + 2) - (91 + 2) - 10 * 2) / 7))
         self.username_entry.grid(row=1, column=1)
 
-        tkinter.Label(self.root, text="密码：").grid(row=2, padx=10)
+        tkinter.Label(self.root, text="密    码").grid(row=2)
 
         # 密码输入框
-        self.password_entry = tkinter.Entry(self.root, width=80, show='*')
+        self.password_entry = tkinter.Entry(self.root, width=int((self.width - (70 + 2) - (91 + 2) - 10 * 2) / 7),
+                                            show='*')
         self.password_entry.grid(row=2, column=1)
 
         # 切换密码显示按钮
-        self.password_show_button = tkinter.Button(self.root, text="显示密码", width=16,
+        self.password_show_button = tkinter.Button(self.root, text="显 示 密 码", width=self.button_width,
                                                    command=self.password_show_switch_command)
-        self.password_show_button.grid(row=2, column=2, padx=10)
+        self.password_show_button.grid(row=2, column=2)
         self.password_show_switch = False
 
-        tkinter.Label(self.root, text="上传地址：").grid(row=3, padx=10)
+        tkinter.Label(self.root, text="地    址").grid(row=3)
 
         # 上传地址输入框
-        self.upload_address_entry = tkinter.Entry(self.root, width=80)
+        self.upload_address_entry = tkinter.Entry(self.root, width=int((self.width - (70 + 2) - (91 + 2) - 10 * 2) / 7))
         self.upload_address_entry.grid(row=3, column=1)
 
         # 上传按钮
-        self.upload_button = tkinter.Button(self.root, text="上传文件", width=16, command=self.upload_threading_command)
-        self.upload_button.grid(row=3, column=2, padx=10)
+        self.upload_button = tkinter.Button(self.root, text="上 传 文 件", width=self.button_width,
+                                            command=self.upload_threading_command)
+        self.upload_button.grid(row=3, column=2)
 
-        # tkinter.Label(self.root, text="上传类型：").grid(row=4, padx=10)
+        # tkinter.Label(self.root, text="上传类型：").grid(row=4)
 
         # # 上传类型
         # self.upload_type_checkbutton = tkinter.Checkbutton(self.root, text='.jar')
         # self.upload_type_checkbutton.place(x=90, y=106)
 
-        # tail 文本
+        # 日志 文本
         self.text_area = tkinter.Text(self.root, bg='black', fg='white')
-        self.text_area.place(x=15, y=120, height=460, width=772)
+        # 20：左右边距
+        self.text_area.place(x=self.text_x, y=self.text_y, height=self.height - self.text_y - 20,
+                             width=self.width - self.text_x * 2)
 
         # 文本处理器
         text_handler = TextHandler(self.text_area)
