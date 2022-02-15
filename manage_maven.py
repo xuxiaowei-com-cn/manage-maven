@@ -270,7 +270,12 @@ class ManageMaven:
             res = conn.getresponse()
             data = res.read()
 
-            logging.info(f'HTTP状态：{res.status} \t文件：{upload_file_relpath}\tHTTP返回值：{data.decode("utf-8")}')
+            if res.status == 201:
+                logging.info(f'上传成功\t文件：{upload_file_relpath}\tHTTP状态：{res.status}\tHTTP返回值：{data.decode("utf-8")}')
+            elif res.status == 400:
+                logging.error(f'上传失败\t文件：{upload_file_relpath}\tHTTP状态：{res.status}\tHTTP返回值：{data.decode("utf-8")}')
+            else:
+                logging.error(f'未知状态码\t文件：{upload_file_relpath}\tHTTP状态：{res.status}\tHTTP返回值：{data.decode("utf-8")}')
 
         self.normal()
 
