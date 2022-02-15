@@ -204,7 +204,7 @@ class ManageMaven:
             self.password_show_button.config(text='显示密码')
             self.password_show_switch = False
         else:
-            self.password_entry.config(show=self.password_entry.get())
+            self.password_entry.config(show='')
             self.password_show_button.config(text='隐藏密码')
             self.password_show_switch = True
 
