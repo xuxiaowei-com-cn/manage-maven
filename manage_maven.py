@@ -125,6 +125,11 @@ class ManageMaven:
         self.text_area = tkinter.Text(self.root, bg='black', fg='white')
         self.text_area.place(x=15, y=120, height=460, width=772)
 
+        # 文本处理器
+        text_handler = TextHandler(self.text_area)
+        logger = logging.getLogger()
+        logger.addHandler(text_handler)
+
         logging.info('程序启动...')
         logging.debug(f'日志目录：{self.LOGGING_DIRECTORY}')
 
@@ -153,6 +158,27 @@ class ManageMaven:
         ctypes.windll.user32.MessageBoxA(0, self.askdirectory_entry.get().encode('gbk'), "上传文件夹".encode('gbk'), 0x00)
         ctypes.windll.user32.MessageBoxA(0, self.username_entry.get().encode('gbk'), "用户名".encode('gbk'), 0x00)
         ctypes.windll.user32.MessageBoxA(0, self.password_entry.get().encode('gbk'), "密码".encode('gbk'), 0x00)
+
+
+class TextHandler(logging.Handler):
+    """
+    文本日志
+    """
+
+    def __init__(self, text):
+        logging.Handler.__init__(self)
+        self.text = text
+
+    def emit(self, record):
+        msg = self.format(record)
+
+        def append():
+            self.text.configure(state=tkinter.NORMAL)
+            self.text.insert(tkinter.END, f'{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}  {msg}\n')
+            self.text.configure(state=tkinter.DISABLED)
+            self.text.yview(tkinter.END)
+
+        self.text.after(0, append)
 
 
 if __name__ == '__main__':
