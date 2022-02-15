@@ -4,6 +4,7 @@ import ctypes
 import http.client
 import logging.handlers
 import os
+import threading
 import time
 import tkinter.messagebox
 from tkinter.filedialog import askdirectory
@@ -147,7 +148,7 @@ class ManageMaven:
         self.upload_address_entry.grid(row=3, column=1)
 
         # 上传按钮
-        self.upload_button = tkinter.Button(self.root, text="上传文件", width=16, command=self.upload_command)
+        self.upload_button = tkinter.Button(self.root, text="上传文件", width=16, command=self.upload_threading_command)
         self.upload_button.grid(row=3, column=2, padx=10)
 
         # tkinter.Label(self.root, text="上传类型：").grid(row=4, padx=10)
@@ -183,6 +184,13 @@ class ManageMaven:
             # 将选择的文件夹放入文件夹输入框
             self.askdirectory_entry.insert(0, ask_directory)
             self.askdirectory_entry.config(state=tkinter.DISABLED)
+
+    def upload_threading_command(self):
+        """
+        使用线程执行
+        """
+        th = threading.Thread(target=self.upload_command)
+        th.start()
 
     def upload_command(self):
         """
