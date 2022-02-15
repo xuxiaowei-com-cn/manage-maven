@@ -229,6 +229,8 @@ class ManageMaven:
             ctypes.windll.user32.MessageBoxA(0, f"上传地址不能为空".encode('gbk'), "上传地址错误".encode('gbk'), 0x10)
             return
 
+        self.disabled()
+
         logging.info(f'上传文件夹：{self.askdirectory_entry.get()}')
         logging.info(f'上传用户名：{self.username_entry.get()}')
         logging.info(f'上传地址：{self.upload_address_entry.get()}')
@@ -248,6 +250,7 @@ class ManageMaven:
             ctypes.windll.user32.MessageBoxA(0,
                                              f"不支持协议：{scheme}\n不支持上传地址：{self.upload_address_entry.get()}".encode('gbk'),
                                              "上传地址错误".encode('gbk'), 0x10)
+            self.normal()
             return
 
         upload_files = all_flie_path(self.askdirectory_entry.get())
@@ -268,6 +271,34 @@ class ManageMaven:
             data = res.read()
 
             logging.info(f'HTTP状态：{res.status} \t文件：{upload_file_relpath}\tHTTP返回值：{data.decode("utf-8")}')
+
+        self.normal()
+
+    def disabled(self):
+        """
+        正在上传，禁用按钮与输入框
+        """
+        self.askdirectory_entry.config(state=tkinter.DISABLED)
+        self.askdirectory_button.config(state=tkinter.DISABLED)
+        self.username_entry.config(state=tkinter.DISABLED)
+        self.password_entry.config(state=tkinter.DISABLED)
+        self.password_show_button.config(state=tkinter.DISABLED)
+        self.upload_address_entry.config(state=tkinter.DISABLED)
+        self.upload_button.config(state=tkinter.DISABLED)
+        self.upload_button.config(text='正在上传...')
+
+    def normal(self):
+        """
+        上传完成，开放按钮与输入框
+        """
+        self.askdirectory_entry.config(state=tkinter.NORMAL)
+        self.askdirectory_button.config(state=tkinter.NORMAL)
+        self.username_entry.config(state=tkinter.NORMAL)
+        self.password_entry.config(state=tkinter.NORMAL)
+        self.password_show_button.config(state=tkinter.NORMAL)
+        self.upload_address_entry.config(state=tkinter.NORMAL)
+        self.upload_button.config(state=tkinter.NORMAL)
+        self.upload_button.config(text='上传文件')
 
     def __del__(self):
         logging.info('程序退出')
