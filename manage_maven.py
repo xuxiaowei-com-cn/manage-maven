@@ -142,8 +142,14 @@ class ManageMaven:
         tkinter.Label(self.root, text="密码：").grid(row=2, padx=10)
 
         # 密码输入框
-        self.password_entry = tkinter.Entry(self.root, width=80)
+        self.password_entry = tkinter.Entry(self.root, width=80, show='*')
         self.password_entry.grid(row=2, column=1)
+
+        # 切换密码显示按钮
+        self.password_show_button = tkinter.Button(self.root, text="显示密码", width=16,
+                                                   command=self.password_show_switch_command)
+        self.password_show_button.grid(row=2, column=2, padx=10)
+        self.password_show_switch = False
 
         tkinter.Label(self.root, text="上传地址：").grid(row=3, padx=10)
 
@@ -188,6 +194,19 @@ class ManageMaven:
             # 将选择的文件夹放入文件夹输入框
             self.askdirectory_entry.insert(0, ask_directory)
             self.askdirectory_entry.config(state=tkinter.DISABLED)
+
+    def password_show_switch_command(self):
+        """
+        切换密码显示
+        """
+        if self.password_show_switch:
+            self.password_entry.config(show='*')
+            self.password_show_button.config(text='显示密码')
+            self.password_show_switch = False
+        else:
+            self.password_entry.config(show=self.password_entry.get())
+            self.password_show_button.config(text='隐藏密码')
+            self.password_show_switch = True
 
     def upload_threading_command(self):
         """
