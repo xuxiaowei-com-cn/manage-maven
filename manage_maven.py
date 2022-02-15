@@ -230,6 +230,9 @@ class ManageMaven:
 
             logging.info(f'HTTP状态：{res.status} \t文件：{upload_file_relpath}\tHTTP返回值：{data.decode("utf-8")}')
 
+    def __del__(self):
+        logging.info('程序退出')
+
 
 class TextHandler(logging.Handler):
     """
