@@ -1,10 +1,45 @@
 # -*- coding:utf-8 -*-
+import base64
 import ctypes
+import http.client
 import logging.handlers
 import os
 import time
 import tkinter.messagebox
 from tkinter.filedialog import askdirectory
+from urllib.parse import urlparse
+
+
+def all_flie_path(path):
+    """获取文件夹下所有的文件"""
+    dir_paths = os.walk(path)
+    result = []
+    for root, dirs, files in dir_paths:
+        for name in files:
+            result.append(os.path.join(root, name))
+    return result
+
+
+def basic(username, password):
+    """
+    计算 basic
+    :param username: 用户名
+    :param password: 密码
+    :return:
+    """
+
+    temp = username + ':' + password
+
+    # 转 bytes
+    temp_encode = temp.encode(encoding="utf-8")
+
+    # base64 编码
+    temp_b64encode = base64.b64encode(temp_encode)
+
+    # base64 解码
+    # temp_b64decode = base64.b64decode(temp_b64encode)
+
+    return 'Basic ' + temp_b64encode.decode()
 
 
 class ManageMaven:
@@ -154,10 +189,46 @@ class ManageMaven:
         上传
         :return:
         """
-        # 0x00 到 0x06 为无图标弹窗
-        ctypes.windll.user32.MessageBoxA(0, self.askdirectory_entry.get().encode('gbk'), "上传文件夹".encode('gbk'), 0x00)
-        ctypes.windll.user32.MessageBoxA(0, self.username_entry.get().encode('gbk'), "用户名".encode('gbk'), 0x00)
-        ctypes.windll.user32.MessageBoxA(0, self.password_entry.get().encode('gbk'), "密码".encode('gbk'), 0x00)
+
+        logging.info(f'上传文件夹：{self.askdirectory_entry.get()}')
+        logging.info(f'上传用户名：{self.username_entry.get()}')
+        logging.info(f'上传地址：{self.upload_address_entry.get()}')
+
+        _url = urlparse(self.upload_address_entry.get())
+        hostname = _url.hostname
+        port = _url.port
+        scheme = _url.scheme
+        path = _url.path
+
+        if scheme.lower() == 'http':
+            conn = http.client.HTTPConnection(hostname, port)
+        elif scheme.lower() == 'https':
+            conn = http.client.HTTPSConnection(hostname, port)
+        else:
+            logging.error(f'协议：{scheme}')
+            ctypes.windll.user32.MessageBoxA(0,
+                                             f"不支持协议：{scheme}\n不支持上传地址：{self.upload_address_entry.get()}".encode('gbk'),
+                                             "上传地址错误".encode('gbk'), 0x10)
+            return
+
+        upload_files = all_flie_path(self.askdirectory_entry.get())
+
+        authorization = basic(self.username_entry.get(), self.password_entry.get())
+
+        headers = {
+            'Authorization': authorization
+        }
+
+        for upload_file in upload_files:
+            upload_file_relpath = os.path.relpath(upload_file, self.askdirectory_entry.get())
+
+            payload = open(rf'{upload_file}', 'rb')
+
+            conn.request("PUT", path + upload_file_relpath, payload, headers)
+            res = conn.getresponse()
+            data = res.read()
+
+            logging.info(f'HTTP状态：{res.status} \t文件：{upload_file_relpath}\tHTTP返回值：{data.decode("utf-8")}')
 
 
 class TextHandler(logging.Handler):
