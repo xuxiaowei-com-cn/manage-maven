@@ -17,6 +17,19 @@ def all_flie_path(path):
     result = []
     for root, dirs, files in dir_paths:
         for name in files:
+
+            # 跳过文件
+            if name == '_remote.repositories':
+                continue
+            elif name.startswith("maven-metadata") and (name.endswith(".xml") or name.endswith(".xml.sha1")):
+                continue
+            elif name.endswith('.part.lock'):
+                continue
+            elif name.endswith('.tmp'):
+                continue
+            elif name == 'resolver-status.properties':
+                continue
+
             result.append(os.path.join(root, name))
     return result
 
