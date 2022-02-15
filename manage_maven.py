@@ -271,9 +271,9 @@ class ManageMaven:
             data = res.read()
 
             if res.status == 201:
-                logging.info(f'上传成功\t文件：{upload_file_relpath}\tHTTP状态：{res.status}\tHTTP返回值：{data.decode("utf-8")}')
+                logging.info(f'上传成功\t文件：{upload_file_relpath}')
             elif res.status == 400:
-                logging.error(f'上传失败\t文件：{upload_file_relpath}\tHTTP状态：{res.status}\tHTTP返回值：{data.decode("utf-8")}')
+                logging.error(f'上传失败\t文件：{upload_file_relpath}')
             else:
                 logging.warning(f'未知状态码\t文件：{upload_file_relpath}\tHTTP状态：{res.status}\tHTTP返回值：{data.decode("utf-8")}')
 
