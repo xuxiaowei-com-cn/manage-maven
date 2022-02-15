@@ -91,6 +91,12 @@ class ManageMaven:
         into_handler.setFormatter(logging.Formatter(self.FMT))
         logger.addHandler(into_handler)
 
+        # 警告日志
+        warning_handler = logging.handlers.TimedRotatingFileHandler(os.path.join(self.LOGGING_DIRECTORY, 'warning.log'))
+        warning_handler.setLevel(logging.WARNING)
+        warning_handler.setFormatter(logging.Formatter(self.FMT))
+        logger.addHandler(warning_handler)
+
         # 异常日志
         error_handler = logging.FileHandler(os.path.join(self.LOGGING_DIRECTORY, 'error.log'))
         error_handler.setLevel(logging.ERROR)
