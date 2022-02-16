@@ -1,4 +1,4 @@
-# upload_maven
+# manage_maven
 
 - 打包
     - PyInstaller
