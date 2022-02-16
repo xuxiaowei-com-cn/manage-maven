@@ -368,8 +368,9 @@ class ManageMaven:
         self.upload_button.config(state=tkinter.NORMAL)
         self.upload_button.config(text='上传文件')
 
-    def __del__(self):
-        logging.info('程序退出')
+    # 禁用，防止使用打包，关闭软件时出现弹窗
+    # def __del__(self):
+    #     logging.info('程序退出')
 
 
 class TextHandler(logging.Handler):
