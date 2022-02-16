@@ -134,6 +134,13 @@ class ManageMaven:
                 self.text_area.config(width=int((self.width - self.text_x * 2) / 7),
                                       height=int((self.height - self.text_y) / 14))
 
+    def on_closing(self):
+        """
+        退出前确认
+        """
+        if tkinter.messagebox.askokcancel("退出", "确定要退出？"):
+            self.root.destroy()
+
     def __init__(self):
         """
         初始化
@@ -142,6 +149,8 @@ class ManageMaven:
 
         self.root = tkinter.Tk()
         self.root.title("管理 Maven")
+
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         # 窗口重置
         self.root.bind('<Configure>', self.window_resize)
