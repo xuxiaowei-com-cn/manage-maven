@@ -6,8 +6,8 @@ VSVersionInfo(
     ffi=FixedFileInfo(
         # filevers and prodvers should be always a tuple with four items: (1, 2, 3, 4)
         # Set not needed items to zero 0.
-        filevers=(0, 0, 0, 2),
-        prodvers=(0, 0, 0, 2),
+        filevers=(0, 0, 2, 0),
+        prodvers=(0, 0, 2, 0),
         # Contains a bitmask that specifies the valid bits 'flags'r
         mask=0x3f,
         # Contains a bitmask that specifies the Boolean attributes of the file.
@@ -30,13 +30,13 @@ VSVersionInfo(
                 StringTable(
                     '000004b0',
                     [StringStruct('CompanyName', '徐晓伟工作室'),
-                     StringStruct('FileDescription', '管理 Maven v0.0.0.2'),
-                     StringStruct('FileVersion', '0.0.0.2'),
-                     StringStruct('InternalName', '管理 Maven v0.0.0.2'),
+                     StringStruct('FileDescription', '管理 Maven http://xxw.ac.cn/manage-maven'),
+                     StringStruct('FileVersion', '0.0.2.0'),
+                     StringStruct('InternalName', '管理 Maven v0.0.2.0'),
                      StringStruct('LegalCopyright', '徐晓伟 <xuxiaowei@xuxiaowei.com.cn>'),
-                     StringStruct('OriginalFilename', 'manage_maven-v0.0.0.2.exe'),
+                     StringStruct('OriginalFilename', 'manage_maven-v0.0.2.0.exe'),
                      StringStruct('ProductName', 'manage_maven'),
-                     StringStruct('ProductVersion', '0.0.0.2')])
+                     StringStruct('ProductVersion', '0.0.2.0')])
             ]),
         VarFileInfo([VarStruct('Translation', [0, 1200])])
     ]
