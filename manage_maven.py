@@ -238,6 +238,7 @@ class ManageMaven:
         # 文本处理器
         text_handler = TextHandler(self.text_area)
         logger = logging.getLogger()
+        text_handler.setFormatter(logging.Formatter(self.FMT))
         logger.addHandler(text_handler)
 
         logging.info('程序启动...')
@@ -385,7 +386,7 @@ class TextHandler(logging.Handler):
 
         def append():
             self.text.configure(state=tkinter.NORMAL)
-            self.text.insert(tkinter.END, f'{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}  {msg}\n')
+            self.text.insert(tkinter.END, f'{msg}\n')
             self.text.configure(state=tkinter.DISABLED)
             self.text.yview(tkinter.END)
 
