@@ -346,7 +346,6 @@ class ManageMaven:
         """
         正在上传，禁用按钮与输入框
         """
-        self.askdirectory_entry.config(state=tkinter.DISABLED)
         self.askdirectory_button.config(state=tkinter.DISABLED)
         self.username_entry.config(state=tkinter.DISABLED)
         self.password_entry.config(state=tkinter.DISABLED)
@@ -359,7 +358,6 @@ class ManageMaven:
         """
         上传完成，开放按钮与输入框
         """
-        self.askdirectory_entry.config(state=tkinter.NORMAL)
         self.askdirectory_button.config(state=tkinter.NORMAL)
         self.username_entry.config(state=tkinter.NORMAL)
         self.password_entry.config(state=tkinter.NORMAL)
