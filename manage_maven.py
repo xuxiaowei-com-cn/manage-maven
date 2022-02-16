@@ -107,6 +107,7 @@ class ManageMaven:
         sh = logging.StreamHandler()
         # 设置输出到控制台的日志等级
         sh.setLevel(logging.DEBUG)
+        sh.setFormatter(logging.Formatter(self.FMT))
         # 添加处理程序
         logger.addHandler(sh)
 
