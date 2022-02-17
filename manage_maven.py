@@ -411,11 +411,15 @@ class ManageMaven:
 
             res = conn.getresponse()
             data = res.read()
+            status = res.status
+            msg = res.msg
 
-            if res.status == 201:
+            if status == 201:
                 logging.info(f'上传成功\t文件：{upload_file_relpath}')
-            elif res.status == 400:
-                logging.error(f'上传失败\t文件：{upload_file_relpath}')
+            elif status == 400:
+                logging.error(f'上传失败\t文件：{upload_file_relpath}\nHTTP响应头：{msg}')
+            elif status == 401:
+                logging.error(f'上传失败\t无权限\t文件：{upload_file_relpath}\nHTTP响应头：{msg}')
             else:
                 logging.warning(f'未知状态码\t文件：{upload_file_relpath}\tHTTP状态：{res.status}\tHTTP返回值：{data.decode("utf-8")}')
 
