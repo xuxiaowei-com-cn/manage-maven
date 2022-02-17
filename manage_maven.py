@@ -408,6 +408,9 @@ class ManageMaven:
             except http.client.CannotSendRequest as e:
                 logging.error(f'上传失败\t文件：{upload_file}\t异常：无法发送请求，{e}')
                 continue
+            except http.client.ResponseNotReady as e:
+                logging.error(f'上传失败\t文件：{upload_file}\t异常：未准备好响应，{e}')
+                continue
 
             res = conn.getresponse()
             data = res.read()
