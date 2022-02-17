@@ -168,9 +168,9 @@ class ManageMaven:
         self.button_width = 9
 
         # 窗口左上角坐标
-        x = self.root.winfo_screenwidth() / 2 - self.width / 2
+        x = (self.root.winfo_screenwidth() - self.width) / 2
         # 空出任务栏高度：50
-        y = (self.root.winfo_screenheight() - 50) / 2 - self.height / 2
+        y = (self.root.winfo_screenheight() - 50 - self.height) / 2
 
         # 设置窗口的大小与位置
         self.root.geometry('%dx%d+%d+%d' % (self.width, self.height, x, y))
