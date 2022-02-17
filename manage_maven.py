@@ -56,6 +56,21 @@ def basic(username, password):
     return 'Basic ' + temp_b64encode.decode()
 
 
+def exist(conn, url, headers):
+    """
+    判断服务器中是否存在此文件
+    """
+
+    try:
+        conn.request("GET", url, headers=headers)
+    except Exception as e:
+        logging.error(f'判断文件是否存在时异常：{e}')
+        return False
+    res = conn.getresponse()
+    res.read()
+    return res.status == 200
+
+
 class ManageMaven:
     """
     管理 Maven
@@ -394,6 +409,12 @@ class ManageMaven:
 
         for upload_file in upload_files:
             upload_file_relpath = os.path.relpath(upload_file, self.askdirectory_entry.get())
+
+            url = path + upload_file_relpath
+
+            if exist(conn, url, headers):
+                logging.warning(f'文件已存在：{upload_file_relpath}')
+                continue
 
             payload = open(rf'{upload_file}', 'rb')
 
