@@ -81,10 +81,14 @@ class ManageMaven:
     def __log__(self):
         """日志配置"""
 
+        # 日志格式
         self.FMT = "%(asctime)s - %(levelname)s - %(filename)s[:%(lineno)d] - %(message)s"
 
+        # 数据目录
+        self.DATA_DIRECTORY = os.path.join(os.getenv("APPDATA"), 'manage_maven')
+
         # 日志文件夹
-        self.LOGGING_DIRECTORY = os.path.join(os.getenv("APPDATA"), 'manage_maven', 'log',
+        self.LOGGING_DIRECTORY = os.path.join(self.DATA_DIRECTORY, 'log',
                                               time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime()))
 
         # 判断文件是否不存在
@@ -196,11 +200,10 @@ class ManageMaven:
 
         # 放在控制窗口大小与位置后面，防止出现闪烁
         # 读取base64转码后的数据，并设置压缩图标
-        icon_w = open("icon_w.ico", "wb+")
+        icon_w = open(os.path.join(self.DATA_DIRECTORY, "icon_w.ico"), "wb+")
         icon_w.write(base64.b64decode(img))
         icon_w.close()
-        self.root.iconbitmap('icon_w.ico')
-        os.remove("icon_w.ico")
+        self.root.iconbitmap(os.path.join(self.DATA_DIRECTORY, "icon_w.ico"))
 
         # 第一行
         self.frame1 = tkinter.Frame(self.root)
