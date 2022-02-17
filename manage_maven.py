@@ -10,6 +10,8 @@ import tkinter.messagebox
 from tkinter.filedialog import askdirectory
 from urllib.parse import urlparse
 
+from icon import img
+
 
 def all_file_path(path):
     """获取文件夹下所有的文件"""
@@ -161,7 +163,6 @@ class ManageMaven:
 
         self.root = tkinter.Tk()
         self.root.title("管理 Maven")
-        self.root.iconbitmap('static/favicon.ico')
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -192,6 +193,14 @@ class ManageMaven:
         self.root.geometry('%dx%d+%d+%d' % (self.width, self.height, x, y))
         # 最小屏幕
         self.root.minsize(self.width, self.height)
+
+        # 放在控制窗口大小与位置后面，防止出现闪烁
+        # 读取base64转码后的数据，并设置压缩图标
+        icon_w = open("icon_w.ico", "wb+")
+        icon_w.write(base64.b64decode(img))
+        icon_w.close()
+        self.root.iconbitmap('icon_w.ico')
+        os.remove("icon_w.ico")
 
         # 第一行
         self.frame1 = tkinter.Frame(self.root)
