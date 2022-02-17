@@ -161,6 +161,7 @@ class ManageMaven:
 
         self.root = tkinter.Tk()
         self.root.title("管理 Maven")
+        self.root.iconbitmap('static/favicon.ico')
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
