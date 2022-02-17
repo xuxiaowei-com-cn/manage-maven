@@ -156,8 +156,10 @@ class ManageMaven:
         self.width = 800
         self.height = 600
 
-        # 每行：外部填充 4 像素
+        # 每行 X 轴方向：外部填充 4 像素
         self.frame_padx = 4
+        # 每行 Y 轴方向：外部填充 4 像素
+        self.frame_pady = 4
         # label：外部填充 4 像素
         self.label_padx = 4
         # label：宽度 41 像素：5 * 8 + 1
@@ -178,7 +180,7 @@ class ManageMaven:
         # 第一行
         self.frame1 = tkinter.Frame(self.root)
         # 横向填充
-        self.frame1.pack(fill=tkinter.X, padx=self.frame_padx)
+        self.frame1.pack(fill=tkinter.X, padx=self.frame_padx, pady=self.frame_pady)
 
         # ipadx：X轴 内部填充
         # ipady：Y轴 内部填充
@@ -200,7 +202,7 @@ class ManageMaven:
         # 第二行
         self.frame2 = tkinter.Frame(self.root)
         # 横向填充
-        self.frame2.pack(fill=tkinter.X, padx=self.frame_padx)
+        self.frame2.pack(fill=tkinter.X, padx=self.frame_padx, pady=self.frame_pady)
 
         # 左对齐
         tkinter.Label(self.frame2, text="用户名", width=self.label_width).pack(side=tkinter.LEFT, padx=self.label_padx)
@@ -212,7 +214,7 @@ class ManageMaven:
         # 第三行
         self.frame3 = tkinter.Frame(self.root)
         # 横向填充
-        self.frame3.pack(fill=tkinter.X, padx=self.frame_padx)
+        self.frame3.pack(fill=tkinter.X, padx=self.frame_padx, pady=self.frame_pady)
 
         # 左对齐
         tkinter.Label(self.frame3, text="密   码", width=self.label_width).pack(side=tkinter.LEFT, padx=self.label_padx)
@@ -230,7 +232,7 @@ class ManageMaven:
         # 第四行
         self.frame4 = tkinter.Frame(self.root)
         # 横向填充
-        self.frame4.pack(fill=tkinter.X, padx=self.frame_padx)
+        self.frame4.pack(fill=tkinter.X, padx=self.frame_padx, pady=self.frame_pady)
 
         # 左对齐
         tkinter.Label(self.frame4, text="地   址", width=self.label_width).pack(side=tkinter.LEFT, padx=self.label_padx)
@@ -247,7 +249,7 @@ class ManageMaven:
         # 第五行
         self.frame5 = tkinter.Frame(self.root)
         # 横向填充
-        self.frame5.pack(fill=tkinter.X, padx=self.frame_padx)
+        self.frame5.pack(fill=tkinter.X, padx=self.frame_padx, pady=self.frame_pady)
 
         # 日志 文本
         self.text_area = tkinter.Text(self.frame5, bg='black', fg='white', width=self.text_width(),
@@ -302,7 +304,9 @@ class ManageMaven:
         sum_entry_button_height = 30 * 3
         # 仅包含：输入框 的总高度
         sum_entry_height = 23
-        return int((self.height - sum_entry_button_height - sum_entry_height) / 13 - 1)
+        # 每行之间的间隔
+        sum_interval_height = self.frame_pady * 5
+        return int((self.height - sum_entry_button_height - sum_entry_height - sum_interval_height) / 13 - 1)
 
     def askdirectory_command(self):
         """
