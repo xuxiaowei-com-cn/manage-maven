@@ -11,7 +11,7 @@ from tkinter.filedialog import askdirectory
 from urllib.parse import urlparse
 
 
-def all_flie_path(path):
+def all_file_path(path):
     """获取文件夹下所有的文件"""
     dir_paths = os.walk(path)
     result = []
@@ -327,7 +327,7 @@ class ManageMaven:
             self.normal()
             return
 
-        upload_files = all_flie_path(self.askdirectory_entry.get())
+        upload_files = all_file_path(self.askdirectory_entry.get())
 
         authorization = basic(self.username_entry.get(), self.password_entry.get())
 
