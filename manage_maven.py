@@ -397,7 +397,18 @@ class ManageMaven:
 
             payload = open(rf'{upload_file}', 'rb')
 
-            conn.request("PUT", path + upload_file_relpath, payload, headers)
+            try:
+                conn.request("PUT", path + upload_file_relpath, payload, headers)
+            except ConnectionResetError as e:
+                logging.error(f'上传失败\t文件：{upload_file}\t异常：连接重置错误，{e}')
+                continue
+            except ConnectionAbortedError as e:
+                logging.error(f'上传失败\t文件：{upload_file}\t异常：连接中止错误，{e}')
+                continue
+            except http.client.CannotSendRequest as e:
+                logging.error(f'上传失败\t文件：{upload_file}\t异常：无法发送请求，{e}')
+                continue
+
             res = conn.getresponse()
             data = res.read()
 
