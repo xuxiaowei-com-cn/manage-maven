@@ -119,20 +119,17 @@ class ManageMaven:
             if self.width != self.root.winfo_width():
                 self.width = self.root.winfo_width()
 
-                self.askdirectory_entry.config(width=int((self.root.winfo_width() - (70 + 2) - (91 + 2) - 10 * 2) / 7))
-                self.username_entry.config(width=int((self.root.winfo_width() - (70 + 2) - (91 + 2) - 10 * 2) / 7))
-                self.password_entry.config(width=int((self.root.winfo_width() - (70 + 2) - (91 + 2) - 10 * 2) / 7))
-                self.upload_address_entry.config(
-                    width=int((self.root.winfo_width() - (70 + 2) - (91 + 2) - 10 * 2) / 7))
+                self.askdirectory_entry.config(width=self.entry_width())
+                self.username_entry.config(width=self.entry_width())
+                self.password_entry.config(width=self.entry_width())
+                self.upload_address_entry.config(width=self.entry_width())
 
-                self.text_area.config(width=int((self.width - self.text_x * 2) / 7),
-                                      height=int((self.height - self.text_y) / 14))
+                self.text_area.config(width=self.text_width(), height=self.text_height())
 
             if self.height != self.root.winfo_height():
                 self.height = self.root.winfo_height()
 
-                self.text_area.config(width=int((self.width - self.text_x * 2) / 7),
-                                      height=int((self.height - self.text_y) / 14))
+                self.text_area.config(width=self.text_width(), height=self.text_height())
 
     def on_closing(self):
         """
@@ -159,90 +156,117 @@ class ManageMaven:
         self.width = 800
         self.height = 600
 
-        # 按钮宽度
-        self.button_width = 12
+        # 每行 X 轴方向：外部填充 4 像素
+        self.frame_padx = 4
+        # 每行 Y 轴方向：外部填充 4 像素
+        self.frame_pady = 4
+        # label：外部填充 4 像素
+        self.label_padx = 4
+        # label：宽度 41 像素：5 * 8 + 1
+        self.label_width = 5
+        # 按钮：宽度 73 像素：9 * 8 + 1
+        self.button_width = 9
 
-        # 文本 绝对位置
-        self.text_x = 10
-        self.text_y = 100
-
+        # 窗口左上角坐标
         x = self.root.winfo_screenwidth() / 2 - self.width / 2
-        # 空出任务栏高度
+        # 空出任务栏高度：50
         y = (self.root.winfo_screenheight() - 50) / 2 - self.height / 2
 
         # 设置窗口的大小与位置
-        # self.root.geometry("800x600+368+107")
         self.root.geometry('%dx%d+%d+%d' % (self.width, self.height, x, y))
         # 最小屏幕
         self.root.minsize(self.width, self.height)
-        # 最大屏幕
-        # self.root.maxsize(self.width, self.height)
 
-        # 创建一个Canvas
-        # 设置其背景色为白色：bg='white'
-        self.cv = tkinter.Canvas(self.root)
+        # 第一行
+        self.frame1 = tkinter.Frame(self.root)
+        # 横向填充
+        self.frame1.pack(fill=tkinter.X, padx=self.frame_padx, pady=self.frame_pady)
 
         # ipadx：X轴 内部填充
         # ipady：Y轴 内部填充
         # padx：X轴 外部填充
         # pady：Y轴 外部填充
-        tkinter.Label(self.root, text="文件夹").grid(row=0, padx=14)
+
+        # 左对齐
+        tkinter.Label(self.frame1, text="文件夹", width=self.label_width).pack(side=tkinter.LEFT, padx=self.label_padx)
 
         # 上传文件夹输入框
-        # 左侧 Label 设置 padx=14 时，宽度为 70（5倍）
-        # 右侧按钮 91
-        # 右侧按钮左右外边距 10
-        # 边框 2
-        self.askdirectory_entry = tkinter.Entry(self.root, state=tkinter.DISABLED,
-                                                width=int((self.width - (70 + 2) - (91 + 2) - 10 * 2) / 7))
-        self.askdirectory_entry.grid(row=0, column=1, pady=10)
+        self.askdirectory_entry = tkinter.Entry(self.frame1, state=tkinter.DISABLED, width=self.entry_width())
+        self.askdirectory_entry.pack(side=tkinter.LEFT)
 
         # 上传文件夹选择按钮
-        self.askdirectory_button = tkinter.Button(self.root, text="选择文件夹", width=self.button_width,
+        self.askdirectory_button = tkinter.Button(self.frame1, text="选择文件夹", width=self.button_width,
                                                   command=self.askdirectory_command)
-        self.askdirectory_button.grid(row=0, column=2, padx=10)
+        self.askdirectory_button.pack(side=tkinter.RIGHT)
 
-        tkinter.Label(self.root, text="用户名").grid(row=1)
+        # 第二行
+        self.frame2 = tkinter.Frame(self.root)
+        # 横向填充
+        self.frame2.pack(fill=tkinter.X, padx=self.frame_padx, pady=self.frame_pady)
+
+        # 左对齐
+        tkinter.Label(self.frame2, text="用户名", width=self.label_width).pack(side=tkinter.LEFT, padx=self.label_padx)
 
         # 用户名输入框
-        self.username_entry = tkinter.Entry(self.root, width=int((self.width - (70 + 2) - (91 + 2) - 10 * 2) / 7))
-        self.username_entry.grid(row=1, column=1)
+        self.username_entry = tkinter.Entry(self.frame2, width=self.entry_width())
+        self.username_entry.pack(side=tkinter.LEFT)
 
-        tkinter.Label(self.root, text="密    码").grid(row=2)
+        # 第三行
+        self.frame3 = tkinter.Frame(self.root)
+        # 横向填充
+        self.frame3.pack(fill=tkinter.X, padx=self.frame_padx, pady=self.frame_pady)
+
+        # 左对齐
+        tkinter.Label(self.frame3, text="密   码", width=self.label_width).pack(side=tkinter.LEFT, padx=self.label_padx)
 
         # 密码输入框
-        self.password_entry = tkinter.Entry(self.root, width=int((self.width - (70 + 2) - (91 + 2) - 10 * 2) / 7),
-                                            show='*')
-        self.password_entry.grid(row=2, column=1)
+        self.password_entry = tkinter.Entry(self.frame3, show='*', width=self.entry_width())
+        self.password_entry.pack(side=tkinter.LEFT)
 
         # 切换密码显示按钮
-        self.password_show_button = tkinter.Button(self.root, text="显 示 密 码", width=self.button_width,
+        self.password_show_button = tkinter.Button(self.frame3, text="显 示 密 码", width=self.button_width,
                                                    command=self.password_show_switch_command)
-        self.password_show_button.grid(row=2, column=2)
+        self.password_show_button.pack(side=tkinter.RIGHT)
         self.password_show_switch = False
 
-        tkinter.Label(self.root, text="地    址").grid(row=3)
+        # 第四行
+        self.frame4 = tkinter.Frame(self.root)
+        # 横向填充
+        self.frame4.pack(fill=tkinter.X, padx=self.frame_padx, pady=self.frame_pady)
+
+        # 左对齐
+        tkinter.Label(self.frame4, text="地   址", width=self.label_width).pack(side=tkinter.LEFT, padx=self.label_padx)
 
         # 上传地址输入框
-        self.upload_address_entry = tkinter.Entry(self.root, width=int((self.width - (70 + 2) - (91 + 2) - 10 * 2) / 7))
-        self.upload_address_entry.grid(row=3, column=1)
+        self.upload_address_entry = tkinter.Entry(self.frame4, width=self.entry_width())
+        self.upload_address_entry.pack(side=tkinter.LEFT)
 
         # 上传按钮
-        self.upload_button = tkinter.Button(self.root, text="上 传 文 件", width=self.button_width,
+        self.upload_button = tkinter.Button(self.frame4, text="上 传 文 件", width=self.button_width,
                                             command=self.upload_threading_command)
-        self.upload_button.grid(row=3, column=2)
+        self.upload_button.pack(side=tkinter.RIGHT)
 
-        # tkinter.Label(self.root, text="上传类型：").grid(row=4)
-
-        # # 上传类型
-        # self.upload_type_checkbutton = tkinter.Checkbutton(self.root, text='.jar')
-        # self.upload_type_checkbutton.place(x=90, y=106)
+        # 第五行
+        self.frame5 = tkinter.Frame(self.root)
+        # 横向填充
+        self.frame5.pack(fill=tkinter.X, padx=self.frame_padx, pady=self.frame_pady)
 
         # 日志 文本
-        self.text_area = tkinter.Text(self.root, bg='black', fg='white', width=int((self.width - self.text_x * 2) / 7),
-                                      height=int((self.height - self.text_y) / 14))
+        self.text_area = tkinter.Text(self.frame5, bg='black', fg='white', width=self.text_width(),
+                                      height=self.text_height())
 
-        self.text_area.grid(row=4, columnspan=3, padx=self.text_x, pady=self.text_x)
+        # 横向填充
+        self.text_area.pack(side=tkinter.LEFT)
+
+        # 滚动条
+        self.scrollbar_y = tkinter.Scrollbar(self.frame5)
+        # 右对齐，Y轴
+        self.scrollbar_y.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+
+        # 滚动条控制文本
+        self.scrollbar_y.config(command=self.text_area.yview)
+        # 文本控制滚动条
+        self.text_area.config(yscrollcommand=self.scrollbar_y.set)
 
         # 文本处理器
         text_handler = TextHandler(self.text_area)
@@ -252,6 +276,37 @@ class ManageMaven:
 
         logging.info('程序启动...')
         logging.debug(f'日志目录：{self.LOGGING_DIRECTORY}')
+
+    def entry_width(self):
+        """
+        计算输入框的宽度
+        """
+        sum_frame_padx = self.frame_padx * 2 + 1
+        sum_label_padx = self.label_padx * 2 + 1
+        sum_label_width = self.label_width * 8 + 1
+        sum_button_width = self.button_width * 8 + 1
+        return int((self.width - sum_frame_padx - sum_label_padx - sum_label_width - sum_button_width) / 7 - 1)
+
+    def text_width(self):
+        """
+        计算文本框的宽度
+        """
+        sum_frame_padx = self.frame_padx * 2 + 1
+        # Y 轴滚动条宽 17 像素
+        scrollbar_y_width = 17
+        return int((self.width - sum_frame_padx - scrollbar_y_width) / 7)
+
+    def text_height(self):
+        """
+        计算文本框的高度
+        """
+        # 同时包含：输入框、按钮 的总高度
+        sum_entry_button_height = 30 * 3
+        # 仅包含：输入框 的总高度
+        sum_entry_height = 23
+        # 每行之间的间隔
+        sum_interval_height = self.frame_pady * 5
+        return int((self.height - sum_entry_button_height - sum_entry_height - sum_interval_height) / 13 - 1)
 
     def askdirectory_command(self):
         """
