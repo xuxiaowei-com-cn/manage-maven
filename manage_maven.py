@@ -159,6 +159,14 @@ class ManageMaven:
         if tkinter.messagebox.askokcancel("退出", "确定要退出？"):
             self.root.destroy()
 
+    def __quit__(self):
+        """
+        退出
+        """
+        self.root.quit()
+        self.root.destroy()
+        exit()
+
     def __init__(self):
         """
         初始化
@@ -192,7 +200,8 @@ class ManageMaven:
         x = (self.root.winfo_screenwidth() - self.width) / 2
         # 空出任务栏高度：50
         # 空出标题栏高度：30
-        y = (self.root.winfo_screenheight() - 50 - 30 - self.height) / 2
+        # 空出菜单栏高度：20
+        y = (self.root.winfo_screenheight() - 50 - 30 - 20 - self.height) / 2
 
         # 设置窗口的大小与位置
         self.root.geometry('%dx%d+%d+%d' % (self.width, self.height, x, y))
@@ -205,6 +214,20 @@ class ManageMaven:
         icon_w.write(base64.b64decode(img))
         icon_w.close()
         self.root.iconbitmap(os.path.join(self.DATA_DIRECTORY, "icon_w.ico"))
+
+        # 创建菜单栏
+        self.menu_bar = tkinter.Menu(self.root, tearoff=0)
+        self.root.config(menu=self.menu_bar)
+
+        # 创建一个名为File的菜单项
+        self.file_menu = tkinter.Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_cascade(label="File", menu=self.file_menu)
+
+        # 在两个菜单选项中间添加一条横线
+        # self.file_menu.add_separator()
+
+        # 在菜单项下面添加一个名为Exit的选项
+        self.file_menu.add_command(label="Exit", command=self.__quit__)
 
         # 第一行
         self.frame1 = tkinter.Frame(self.root)
