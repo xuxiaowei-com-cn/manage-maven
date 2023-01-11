@@ -218,16 +218,8 @@ class ManageMaven:
         # 创建菜单栏
         self.menu_bar = tkinter.Menu(self.root, tearoff=0)
         self.root.config(menu=self.menu_bar)
-
-        # 创建一个名为 文件 的菜单项
-        self.file_menu = tkinter.Menu(self.menu_bar, tearoff=0)
-        self.menu_bar.add_cascade(label="文件", menu=self.file_menu)
-
-        # 在两个菜单选项中间添加一条横线
-        # self.file_menu.add_separator()
-
-        # 在菜单项下面添加一个名为 退出 的选项
-        self.file_menu.add_command(label="退出", command=self.__quit__)
+        self.file_menu = None
+        self.create_file_menu()
 
         # 第一行
         self.frame1 = tkinter.Frame(self.root)
@@ -329,6 +321,20 @@ class ManageMaven:
         logging.info('程序启动...')
         logging.debug(f'日志目录：{self.LOGGING_DIRECTORY}')
 
+    def create_file_menu(self):
+        """
+        创建文件菜单
+        """
+        # 创建一个名为 文件 的菜单项
+        self.file_menu = tkinter.Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_cascade(label="文件", menu=self.file_menu)
+
+        # 在两个菜单选项中间添加一条横线
+        # self.file_menu.add_separator()
+
+        # 在菜单项下面添加一个名为 退出 的选项
+        self.file_menu.add_command(label="退出", command=self.__quit__)
+
     def entry_width(self):
         """
         计算输入框的宽度
@@ -403,7 +409,8 @@ class ManageMaven:
         """
 
         if self.askdirectory_entry.get() == '':
-            ctypes.windll.user32.MessageBoxA(0, f"上传文件夹不能为空".encode('gbk'), "上传文件夹错误".encode('gbk'), 0x10)
+            ctypes.windll.user32.MessageBoxA(0, f"上传文件夹不能为空".encode('gbk'), "上传文件夹错误".encode('gbk'),
+                                             0x10)
             return
 
         if self.upload_address_entry.get() == '':
@@ -429,7 +436,8 @@ class ManageMaven:
         else:
             logging.error(f'协议：{scheme}')
             ctypes.windll.user32.MessageBoxA(0,
-                                             f"不支持协议：{scheme}\n不支持上传地址：{self.upload_address_entry.get()}".encode('gbk'),
+                                             f"不支持协议：{scheme}\n不支持上传地址：{self.upload_address_entry.get()}".encode(
+                                                 'gbk'),
                                              "上传地址错误".encode('gbk'), 0x10)
             self.normal()
             return
@@ -482,7 +490,8 @@ class ManageMaven:
             elif status == 401:
                 logging.error(f'上传失败\t无权限\t文件：{upload_file_relpath}\nHTTP响应头：{msg}')
             else:
-                logging.warning(f'未知状态码\t文件：{upload_file_relpath}\tHTTP状态：{res.status}\tHTTP返回值：{data.decode("utf-8")}')
+                logging.warning(
+                    f'未知状态码\t文件：{upload_file_relpath}\tHTTP状态：{res.status}\tHTTP返回值：{data.decode("utf-8")}')
 
         self.normal()
 
