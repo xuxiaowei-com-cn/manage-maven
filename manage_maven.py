@@ -219,15 +219,15 @@ class ManageMaven:
         self.menu_bar = tkinter.Menu(self.root, tearoff=0)
         self.root.config(menu=self.menu_bar)
 
-        # 创建一个名为File的菜单项
+        # 创建一个名为 文件 的菜单项
         self.file_menu = tkinter.Menu(self.menu_bar, tearoff=0)
-        self.menu_bar.add_cascade(label="File", menu=self.file_menu)
+        self.menu_bar.add_cascade(label="文件", menu=self.file_menu)
 
         # 在两个菜单选项中间添加一条横线
         # self.file_menu.add_separator()
 
-        # 在菜单项下面添加一个名为Exit的选项
-        self.file_menu.add_command(label="Exit", command=self.__quit__)
+        # 在菜单项下面添加一个名为 退出 的选项
+        self.file_menu.add_command(label="退出", command=self.__quit__)
 
         # 第一行
         self.frame1 = tkinter.Frame(self.root)
