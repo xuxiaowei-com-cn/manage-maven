@@ -413,9 +413,16 @@ class ManageMaven:
         # self.mode_menu.add_separator()
 
         self.mode.set('upload')
+        self.add_radiobutton(tkinter.NORMAL)
 
-        self.mode_menu.add_radiobutton(label='上传', value='upload', variable=self.mode, command=self.mode_command)
-        self.mode_menu.add_radiobutton(label='下载', value='download', variable=self.mode, command=self.mode_command)
+    def add_radiobutton(self, _state):
+        """
+        添加单选
+        """
+        self.mode_menu.add_radiobutton(label='上传', value='upload', variable=self.mode, command=self.mode_command,
+                                       state=_state)
+        self.mode_menu.add_radiobutton(label='下载', value='download', variable=self.mode, command=self.mode_command,
+                                       state=_state)
 
     def mode_command(self):
         """
@@ -724,6 +731,10 @@ class ManageMaven:
         """
         正在上传，禁用按钮与输入框
         """
+
+        self.mode_menu.delete(0, 1)
+        self.add_radiobutton(tkinter.DISABLED)
+
         self.askdirectory_button.config(state=tkinter.DISABLED)
         self.username_entry.config(state=tkinter.DISABLED)
         self.password_entry.config(state=tkinter.DISABLED)
@@ -736,6 +747,10 @@ class ManageMaven:
         """
         上传完成，开放按钮与输入框
         """
+
+        self.mode_menu.delete(0, 1)
+        self.add_radiobutton(tkinter.NORMAL)
+
         self.askdirectory_button.config(state=tkinter.NORMAL)
         self.username_entry.config(state=tkinter.NORMAL)
         self.password_entry.config(state=tkinter.NORMAL)
