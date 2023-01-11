@@ -143,7 +143,7 @@ class ManageMaven:
                 self.askdirectory_entry.config(width=self.entry_width())
                 self.username_entry.config(width=self.entry_width())
                 self.password_entry.config(width=self.entry_width())
-                self.upload_address_entry.config(width=self.entry_width())
+                self.execute_address_entry.config(width=self.entry_width())
 
                 self.text_area.config(width=self.text_width(), height=self.text_height())
 
@@ -223,7 +223,10 @@ class ManageMaven:
         self.mode_menu = None
         self.mode = 'upload'
         self.mode_label = '上传'
+        self.execute_button_text = '上 传 文 件'
         self.create_mode_menu()
+
+        self.th = None
 
         # 第一行
         self.frame1 = tkinter.Frame(self.root)
@@ -285,14 +288,14 @@ class ManageMaven:
         # 左对齐
         tkinter.Label(self.frame4, text="地   址", width=self.label_width).pack(side=tkinter.LEFT, padx=self.label_padx)
 
-        # 上传地址输入框
-        self.upload_address_entry = tkinter.Entry(self.frame4, width=self.entry_width())
-        self.upload_address_entry.pack(side=tkinter.LEFT)
+        # 上传地址输入框/下载地址输入框
+        self.execute_address_entry = tkinter.Entry(self.frame4, width=self.entry_width())
+        self.execute_address_entry.pack(side=tkinter.LEFT)
 
-        # 上传按钮
-        self.upload_button = tkinter.Button(self.frame4, text="上 传 文 件", width=self.button_width,
-                                            command=self.upload_threading_command)
-        self.upload_button.pack(side=tkinter.RIGHT)
+        # 上传按钮/下载按钮
+        self.execute_button = tkinter.Button(self.frame4, text=self.execute_button_text, width=self.button_width,
+                                             command=self.execute_threading_command)
+        self.execute_button.pack(side=tkinter.RIGHT)
 
         # 第五行
         self.frame5 = tkinter.Frame(self.root)
@@ -325,6 +328,8 @@ class ManageMaven:
         logging.info('程序启动...')
         logging.debug(f'日志目录：{self.LOGGING_DIRECTORY}')
 
+        logging.info(f"mode：{self.mode.get()}")
+
     def create_file_menu(self):
         """
         创建文件菜单
@@ -350,26 +355,28 @@ class ManageMaven:
         # 在两个菜单选项中间添加一条横线
         # self.mode_menu.add_separator()
 
-        # 在菜单项下面添加一个名为 退出 的选项
-        self.mode_menu.add_command(label=self.mode_label, command=self.mode_command)
+        # 在菜单项下面添加一个名为 模式 的选项
+        self.mode = tkinter.StringVar()
+        self.mode.set('upload')
+
+        self.mode_menu.add_radiobutton(label='上传', value='upload', variable=self.mode, command=self.mode_command)
+        self.mode_menu.add_radiobutton(label='下载', value='download', variable=self.mode, command=self.mode_command)
 
     def mode_command(self):
         """
         模式命令
         """
 
-        if self.mode == 'upload':
-            self.mode = 'download'
+        if self.mode.get() == 'download':
             self.mode_label = '下载'
+            self.execute_button_text = '下 载 文 件'
         else:
-            self.mode = 'upload'
             self.mode_label = '上传'
+            self.execute_button_text = '上 传 文 件'
 
-        logging.info(f"mode：{self.mode}")
-        # 删除模式菜单
-        self.menu_bar.delete(1)
-        # 创建模式菜单
-        self.create_mode_menu()
+        logging.info(f"mode：{self.mode.get()}")
+
+        self.execute_button.config(text=self.execute_button_text)
 
     def entry_width(self):
         """
@@ -408,7 +415,7 @@ class ManageMaven:
         :return:
         """
         ask_directory = askdirectory()
-        logging.info(f'选择上传文件夹：{ask_directory}')
+        logging.info(f'选择{self.mode_label}文件夹：{ask_directory}')
 
         if ask_directory != '':
             self.askdirectory_entry.config(state=tkinter.NORMAL)
@@ -431,35 +438,36 @@ class ManageMaven:
             self.password_show_button.config(text='隐藏密码')
             self.password_show_switch = True
 
-    def upload_threading_command(self):
+    def execute_threading_command(self):
         """
         使用线程执行
         """
-        th = threading.Thread(target=self.upload_command)
-        th.start()
+        self.th = threading.Thread(target=self.execute_command)
+        self.th.start()
 
-    def upload_command(self):
+    def execute_command(self):
         """
-        上传
+        上传/下载
         :return:
         """
 
         if self.askdirectory_entry.get() == '':
-            ctypes.windll.user32.MessageBoxA(0, f"上传文件夹不能为空".encode('gbk'), "上传文件夹错误".encode('gbk'),
-                                             0x10)
+            ctypes.windll.user32.MessageBoxA(0, f"{self.mode_label}文件夹不能为空".encode('gbk'),
+                                             f"{self.mode_label}文件夹错误".encode('gbk'), 0x10)
             return
 
-        if self.upload_address_entry.get() == '':
-            ctypes.windll.user32.MessageBoxA(0, f"上传地址不能为空".encode('gbk'), "上传地址错误".encode('gbk'), 0x10)
+        if self.execute_address_entry.get() == '':
+            ctypes.windll.user32.MessageBoxA(0, f"{self.mode_label}地址不能为空".encode('gbk'),
+                                             f"{self.mode_label}地址错误".encode('gbk'), 0x10)
             return
 
         self.disabled()
 
-        logging.info(f'上传文件夹：{self.askdirectory_entry.get()}')
-        logging.info(f'上传用户名：{self.username_entry.get()}')
-        logging.info(f'上传地址：{self.upload_address_entry.get()}')
+        logging.info(f'{self.mode_label}文件夹：{self.askdirectory_entry.get()}')
+        logging.info(f'{self.mode_label}用户名：{self.username_entry.get()}')
+        logging.info(f'{self.mode_label}地址：{self.execute_address_entry.get()}')
 
-        _url = urlparse(self.upload_address_entry.get())
+        _url = urlparse(self.execute_address_entry.get())
         hostname = _url.hostname
         port = _url.port
         scheme = _url.scheme
@@ -472,13 +480,13 @@ class ManageMaven:
         else:
             logging.error(f'协议：{scheme}')
             ctypes.windll.user32.MessageBoxA(0,
-                                             f"不支持协议：{scheme}\n不支持上传地址：{self.upload_address_entry.get()}".encode(
-                                                 'gbk'),
-                                             "上传地址错误".encode('gbk'), 0x10)
+                                             f"不支持协议：{scheme}\n不支持{self.mode_label}"
+                                             f"地址：{self.execute_address_entry.get()}".encode('gbk'),
+                                             f"{self.mode_label}地址错误".encode('gbk'), 0x10)
             self.normal()
             return
 
-        upload_files = all_file_path(self.askdirectory_entry.get())
+        execute_files = all_file_path(self.askdirectory_entry.get())
 
         authorization = basic(self.username_entry.get(), self.password_entry.get())
 
@@ -488,30 +496,30 @@ class ManageMaven:
             'Authorization': authorization
         }
 
-        for upload_file in upload_files:
-            upload_file_relpath = os.path.relpath(upload_file, self.askdirectory_entry.get())
+        for execute_file in execute_files:
+            execute_file_relpath = os.path.relpath(execute_file, self.askdirectory_entry.get())
 
-            url = path + upload_file_relpath
+            url = path + execute_file_relpath
 
             if exist(conn, url, headers):
-                logging.warning(f'文件已存在：{upload_file_relpath}')
+                logging.warning(f'文件已存在：{execute_file_relpath}')
                 continue
 
-            payload = open(rf'{upload_file}', 'rb')
+            payload = open(rf'{execute_file}', 'rb')
 
             try:
-                conn.request("PUT", path + upload_file_relpath, payload, headers)
+                conn.request("PUT", path + execute_file_relpath, payload, headers)
             except ConnectionResetError as e:
-                logging.error(f'上传失败\t文件：{upload_file}\t异常：连接重置错误，{e}')
+                logging.error(f'{self.mode_label}失败\t文件：{execute_file}\t异常：连接重置错误，{e}')
                 continue
             except ConnectionAbortedError as e:
-                logging.error(f'上传失败\t文件：{upload_file}\t异常：连接中止错误，{e}')
+                logging.error(f'{self.mode_label}失败\t文件：{execute_file}\t异常：连接中止错误，{e}')
                 continue
             except http.client.CannotSendRequest as e:
-                logging.error(f'上传失败\t文件：{upload_file}\t异常：无法发送请求，{e}')
+                logging.error(f'{self.mode_label}失败\t文件：{execute_file}\t异常：无法发送请求，{e}')
                 continue
             except http.client.ResponseNotReady as e:
-                logging.error(f'上传失败\t文件：{upload_file}\t异常：未准备好响应，{e}')
+                logging.error(f'{self.mode_label}失败\t文件：{execute_file}\t异常：未准备好响应，{e}')
                 continue
 
             res = conn.getresponse()
@@ -520,14 +528,14 @@ class ManageMaven:
             msg = res.msg
 
             if status == 201:
-                logging.info(f'上传成功\t文件：{upload_file_relpath}')
+                logging.info(f'{self.mode_label}成功\t文件：{execute_file_relpath}')
             elif status == 400:
-                logging.error(f'上传失败\t文件：{upload_file_relpath}\nHTTP响应头：{msg}')
+                logging.error(f'{self.mode_label}失败\t文件：{execute_file_relpath}\nHTTP响应头：{msg}')
             elif status == 401:
-                logging.error(f'上传失败\t无权限\t文件：{upload_file_relpath}\nHTTP响应头：{msg}')
+                logging.error(f'{self.mode_label}失败\t无权限\t文件：{execute_file_relpath}\nHTTP响应头：{msg}')
             else:
                 logging.warning(
-                    f'未知状态码\t文件：{upload_file_relpath}\tHTTP状态：{res.status}\tHTTP返回值：{data.decode("utf-8")}')
+                    f'未知状态码\t文件：{execute_file_relpath}\tHTTP状态：{res.status}\tHTTP返回值：{data.decode("utf-8")}')
 
         self.normal()
 
@@ -539,9 +547,9 @@ class ManageMaven:
         self.username_entry.config(state=tkinter.DISABLED)
         self.password_entry.config(state=tkinter.DISABLED)
         self.password_show_button.config(state=tkinter.DISABLED)
-        self.upload_address_entry.config(state=tkinter.DISABLED)
-        self.upload_button.config(state=tkinter.DISABLED)
-        self.upload_button.config(text='正在上传...')
+        self.execute_address_entry.config(state=tkinter.DISABLED)
+        self.execute_button.config(state=tkinter.DISABLED)
+        self.execute_button.config(text=f'正在{self.mode_label}...')
 
     def normal(self):
         """
@@ -551,9 +559,9 @@ class ManageMaven:
         self.username_entry.config(state=tkinter.NORMAL)
         self.password_entry.config(state=tkinter.NORMAL)
         self.password_show_button.config(state=tkinter.NORMAL)
-        self.upload_address_entry.config(state=tkinter.NORMAL)
-        self.upload_button.config(state=tkinter.NORMAL)
-        self.upload_button.config(text='上传文件')
+        self.execute_address_entry.config(state=tkinter.NORMAL)
+        self.execute_button.config(state=tkinter.NORMAL)
+        self.execute_button.config(text=f'{self.mode_label}文件')
 
     # 禁用，防止使用 py2exe 打包，关闭软件时出现弹窗
     # def __del__(self):
