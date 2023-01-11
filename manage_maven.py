@@ -7,8 +7,11 @@ import os
 import threading
 import time
 import tkinter.messagebox
+import urllib.request
 from tkinter.filedialog import askdirectory
 from urllib.parse import urlparse
+
+from bs4 import BeautifulSoup
 
 from icon import img
 
@@ -56,6 +59,54 @@ def basic(username, password):
     # temp_b64decode = base64.b64decode(temp_b64encode)
 
     return 'Basic ' + temp_b64encode.decode()
+
+
+def suffix(_url):
+    """
+    检查补充后缀
+    """
+    url_suffix = _url[len(_url) - 1:]
+    if url_suffix != '/':
+        return _url + "/"
+    return _url
+
+
+def url_struct(_url, _href):
+    """
+    URL 结构处理
+    """
+    href_split = str(_href).split("/")
+
+    result_path_split = []
+
+    point = 0
+    for hs in href_split:
+        if hs == '..':
+            point += 1
+        else:
+            result_path_split.append(hs)
+
+    url_split = _url.split("/")
+
+    result_path_prefix = 0
+    _url_split_len = len(url_split)
+    for us in url_split:
+        if result_path_prefix <= _url_split_len - point:
+            result_path_split.insert(result_path_prefix, us)
+        result_path_prefix += 1
+
+    result_path = ''
+    i = 0
+    for tmp in result_path_split:
+        if tmp == '':
+            continue
+        if i > 3:
+            result_path += tmp + "/"
+        i += 1
+
+    url_urlparse = urlparse(_url)
+
+    return url_urlparse.scheme + "://" + str(url_urlparse.hostname) + ":" + str(url_urlparse.port) + "/" + result_path
 
 
 def exist(conn, url, headers):
@@ -221,7 +272,7 @@ class ManageMaven:
         self.file_menu = None
         self.create_file_menu()
         self.mode_menu = None
-        self.mode = 'upload'
+        self.mode = tkinter.StringVar()
         self.mode_label = '上传'
         self.execute_button_text = '上 传 文 件'
         self.create_mode_menu()
@@ -261,6 +312,7 @@ class ManageMaven:
         # 用户名输入框
         self.username_entry = tkinter.Entry(self.frame2, width=self.entry_width())
         self.username_entry.pack(side=tkinter.LEFT)
+        # self.username_entry.insert(0, 'admin')
 
         # 第三行
         self.frame3 = tkinter.Frame(self.root)
@@ -273,6 +325,7 @@ class ManageMaven:
         # 密码输入框
         self.password_entry = tkinter.Entry(self.frame3, show='*', width=self.entry_width())
         self.password_entry.pack(side=tkinter.LEFT)
+        # self.password_entry.insert(0, 'xuxiaowei')
 
         # 切换密码显示按钮
         self.password_show_button = tkinter.Button(self.frame3, text="显 示 密 码", width=self.button_width,
@@ -291,6 +344,7 @@ class ManageMaven:
         # 上传地址输入框/下载地址输入框
         self.execute_address_entry = tkinter.Entry(self.frame4, width=self.entry_width())
         self.execute_address_entry.pack(side=tkinter.LEFT)
+        # self.execute_address_entry.insert(0, "http://192.168.0.9:8081/repository/maven-upload")
 
         # 上传按钮/下载按钮
         self.execute_button = tkinter.Button(self.frame4, text=self.execute_button_text, width=self.button_width,
@@ -351,15 +405,13 @@ class ManageMaven:
         """
         创建模式菜单
         """
-        # 创建一个名为 文件 的菜单项
+        # 创建一个名为 模式 的菜单项
         self.mode_menu = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_bar.add_cascade(label="模式", menu=self.mode_menu)
 
         # 在两个菜单选项中间添加一条横线
         # self.mode_menu.add_separator()
 
-        # 在菜单项下面添加一个名为 模式 的选项
-        self.mode = tkinter.StringVar()
         self.mode.set('upload')
 
         self.mode_menu.add_radiobutton(label='上传', value='upload', variable=self.mode, command=self.mode_command)
@@ -461,7 +513,7 @@ class ManageMaven:
         """
 
         if self.askdirectory_entry.get() == '':
-            ctypes.windll.user32.MessageBoxA(0, f"{self.mode_label}文件夹不能为空".encode('gbk'),
+            ctypes.windll.user32.MessageBoxA(0, f"{self.mode_label}文件夹必选".encode('gbk'),
                                              f"{self.mode_label}文件夹错误".encode('gbk'), 0x10)
             return
 
@@ -510,14 +562,109 @@ class ManageMaven:
             logging.info(f'未使用用户名和密码')
 
         if self.mode.get() == 'upload':
-            self.upload(path, conn, headers)
+            self.upload(conn, headers, path)
         else:
-            logging.warning(f'下载功能未开发完成')
-            ctypes.windll.user32.MessageBoxA(0, f"下载功能未开发完成".encode('gbk'),
-                                             f"{self.mode_label}警告".encode('gbk'), 0x10)
-            self.normal()
+            self.download(conn, headers)
 
-    def upload(self, path, conn, headers):
+    def download(self, conn, headers):
+        """
+        下载
+        """
+        maven_url = suffix(self.execute_address_entry.get())
+        download_path = suffix(self.askdirectory_entry.get())
+
+        try:
+            conn.request("GET", maven_url, headers=headers)
+        except Exception as e:
+            logging.error(f'{self.mode_label}地址访问失败：{e}')
+            self.normal()
+            return
+
+        res = conn.getresponse()
+
+        if res.status == 401:
+            ctypes.windll.user32.MessageBoxA(0, f"用户名或密码不正确".encode('gbk'), "凭证错误".encode('gbk'), 0x10)
+            self.normal()
+            return
+
+        read = res.read()
+        data = read.decode("utf-8")
+
+        soup = BeautifulSoup(data, 'html.parser')
+
+        title = soup.find('title').text
+        if title == 'Access Denied':
+            ctypes.windll.user32.MessageBoxA(0, f"用户名或密码不正确".encode('gbk'), "凭证错误".encode('gbk'), 0x10)
+            self.normal()
+            return
+
+        aTags = soup.find_all('a', text='HTML index')
+
+        # 兼容 oss.sonatype.org 与自己搭建的 nexus
+        if len(aTags) == 0:
+            service_url = maven_url
+        else:
+            a = aTags[0]
+            href = a.attrs['href']
+            service_url = url_struct(maven_url, href)
+
+        self.href_loop(conn, headers, service_url, download_path)
+
+        self.normal()
+        self.stop = None
+        logging.info(f'{self.mode_label}完成')
+
+    def href_loop(self, _conn, _headers, _service_url, _download_path):
+        """
+        递归
+        """
+
+        if self.stop:
+            logging.info(f'停止{self.mode_label}')
+            return
+
+        try:
+            _conn.request("GET", _service_url, headers=_headers)
+        except Exception as e:
+            logging.error(f'{self.mode_label} 时地址 {_service_url} 访问失败：{e}')
+            ctypes.windll.user32.MessageBoxA(0, f'{self.mode_label} 时地址 {_service_url} 访问失败：{e}'.encode('gbk'),
+                                             "访问错误".encode('gbk'), 0x10)
+            self.normal()
+            return
+
+        _res = _conn.getresponse()
+        _read = _res.read()
+        _data = _read.decode("utf-8")
+
+        _soup = BeautifulSoup(_data, 'html.parser')
+        _aTags = _soup.find_all('a')
+        for _a in _aTags:
+            _a_href = _a.attrs['href']
+            if urlparse(_a_href).scheme == '':
+                if _a_href == '../':
+                    continue
+                _service_url_tmp = _service_url + _a_href
+                self.href_loop(_conn, _headers, _service_url_tmp, _download_path)
+
+            # 兼容 oss.sonatype.org 与自己搭建的 nexus
+            elif _a_href[len(_a_href) - 1:] == '/':
+                if urlparse(_a_href).scheme == '':
+                    _service_url_tmp = _service_url + _a_href
+                    self.href_loop(_conn, _headers, _service_url_tmp, _download_path)
+                else:
+                    self.href_loop(_conn, _headers, _a_href, _download_path)
+
+            else:
+                file_path = _download_path + _a_href.replace(":/", '').replace(":", "/")
+                disk_path = os.path.dirname(os.path.abspath(file_path))
+                if not os.path.exists(disk_path):
+                    os.makedirs(disk_path)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                logging.info(disk_path + '\t' + _a_href)
+                urllib.request.urlretrieve(_a_href, filename=file_path)
+
+    def upload(self, _conn, _headers, _path):
         """
         上传
         """
@@ -526,16 +673,16 @@ class ManageMaven:
         for execute_file in execute_files:
             execute_file_relpath = os.path.relpath(execute_file, self.askdirectory_entry.get())
 
-            url = path + execute_file_relpath
+            url = _path + execute_file_relpath
 
-            if exist(conn, url, headers):
+            if exist(_conn, url, _headers):
                 logging.warning(f'文件已存在：{execute_file_relpath}')
                 continue
 
             payload = open(rf'{execute_file}', 'rb')
 
             try:
-                conn.request("PUT", path + execute_file_relpath, payload, headers)
+                _conn.request("PUT", _path + execute_file_relpath, payload, _headers)
             except ConnectionResetError as e:
                 logging.error(f'{self.mode_label}失败\t文件：{execute_file}\t异常：连接重置错误，{e}')
                 continue
@@ -549,7 +696,7 @@ class ManageMaven:
                 logging.error(f'{self.mode_label}失败\t文件：{execute_file}\t异常：未准备好响应，{e}')
                 continue
 
-            res = conn.getresponse()
+            res = _conn.getresponse()
             data = res.read()
             status = res.status
             msg = res.msg
@@ -571,6 +718,7 @@ class ManageMaven:
                 return
 
         self.normal()
+        logging.info(f'{self.mode_label}完成')
 
     def disabled(self):
         """
