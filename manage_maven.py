@@ -220,6 +220,10 @@ class ManageMaven:
         self.root.config(menu=self.menu_bar)
         self.file_menu = None
         self.create_file_menu()
+        self.mode_menu = None
+        self.mode = 'upload'
+        self.mode_label = '上传'
+        self.create_mode_menu()
 
         # 第一行
         self.frame1 = tkinter.Frame(self.root)
@@ -334,6 +338,38 @@ class ManageMaven:
 
         # 在菜单项下面添加一个名为 退出 的选项
         self.file_menu.add_command(label="退出", command=self.__quit__)
+
+    def create_mode_menu(self):
+        """
+        创建模式菜单
+        """
+        # 创建一个名为 文件 的菜单项
+        self.mode_menu = tkinter.Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_cascade(label="模式", menu=self.mode_menu)
+
+        # 在两个菜单选项中间添加一条横线
+        # self.mode_menu.add_separator()
+
+        # 在菜单项下面添加一个名为 退出 的选项
+        self.mode_menu.add_command(label=self.mode_label, command=self.mode_command)
+
+    def mode_command(self):
+        """
+        模式命令
+        """
+
+        if self.mode == 'upload':
+            self.mode = 'download'
+            self.mode_label = '下载'
+        else:
+            self.mode = 'upload'
+            self.mode_label = '上传'
+
+        logging.info(f"mode：{self.mode}")
+        # 删除模式菜单
+        self.menu_bar.delete(1)
+        # 创建模式菜单
+        self.create_mode_menu()
 
     def entry_width(self):
         """
