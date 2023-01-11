@@ -3,7 +3,9 @@ import base64
 import ctypes
 import http.client
 import logging.handlers
+import os
 import sys
+import urllib.request
 from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
@@ -38,6 +40,7 @@ def suffix(_url):
     url_suffix = _url[len(_url) - 1:]
     if url_suffix != '/':
         return _url + "/"
+    return _url
 
 
 def url_struct(_url, _href):
@@ -78,8 +81,10 @@ def url_struct(_url, _href):
 maven_url = "http://192.168.0.9:8081/repository/maven-upload"
 username = 'admin'
 password = 'xuxiaowei'
+download_path = 'D:\\Apache\\download_path'
 
 maven_url = suffix(maven_url)
+download_path = suffix(download_path)
 
 _url = urlparse(maven_url)
 hostname = str(_url.hostname)
@@ -104,6 +109,7 @@ authorization = basic(username, password)
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                   'Chrome/98.0.4758.102 Safari/537.36',
+    # oss.sonatype.org 域名推荐缺省密码
     'Authorization': authorization
 }
 
@@ -120,10 +126,14 @@ data = read.decode("utf-8")
 soup = BeautifulSoup(data, 'html.parser')
 
 aTags = soup.find_all('a', text='HTML index')
-a = aTags[0]
-href = a.attrs['href']
 
-service_url = url_struct(maven_url, href)
+# 兼容 oss.sonatype.org 与自己搭建的 nexus
+if len(aTags) == 0:
+    service_url = maven_url
+else:
+    a = aTags[0]
+    href = a.attrs['href']
+    service_url = url_struct(maven_url, href)
 
 
 def href_loop(_conn, _service_url, _headers):
@@ -146,8 +156,24 @@ def href_loop(_conn, _service_url, _headers):
                 continue
             _service_url_tmp = _service_url + _a_href
             href_loop(conn, _service_url_tmp, headers)
+
+        # 兼容 oss.sonatype.org 与自己搭建的 nexus
+        elif _a_href[len(_a_href) - 1:] == '/':
+            if urlparse(_a_href).scheme == '':
+                _service_url_tmp = _service_url + _a_href
+                href_loop(conn, _service_url_tmp, headers)
+            else:
+                href_loop(conn, _a_href, headers)
+
         else:
-            print(str(_a_href).replace(maven_url, '') + '\t' + _a_href)
+            file_path = (download_path + _a_href).replace(maven_url, '')
+            disk_path = os.path.dirname(os.path.abspath(file_path))
+            if not os.path.exists(disk_path):
+                os.makedirs(disk_path)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            print(disk_path + '\t' + _a_href)
+            urllib.request.urlretrieve(_a_href, filename=file_path)
 
 
 href_loop(conn, service_url, headers)
