@@ -98,20 +98,23 @@ elif scheme.lower() == 'https':
     conn = http.client.HTTPSConnection(hostname, port)
 else:
     logging.error(f'协议：{scheme}')
-    ctypes.windll.user32.MessageBoxA(0,
-                                     f"不支持协议：{scheme}\n不支持上传地址：{maven_url}".encode(
-                                         'gbk'),
-                                     "上传地址错误".encode('gbk'), 0x10)
+    ctypes.windll.user32.MessageBoxA(0, f"不支持协议：{scheme}\n不支持下载地址：{maven_url}".encode('gbk'),
+                                     "地址错误".encode('gbk'), 0x10)
     sys.exit()
 
 authorization = basic(username, password)
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                  'Chrome/98.0.4758.102 Safari/537.36',
-    # oss.sonatype.org 域名推荐缺省密码
-    'Authorization': authorization
+                  'Chrome/98.0.4758.102 Safari/537.36'
 }
+
+if username != '' or password != '':
+    logging.info(f'使用用户名和密码')
+    # oss.sonatype.org 域名推荐缺省密码
+    headers['Authorization'] = authorization
+else:
+    logging.info(f'未使用用户名和密码')
 
 try:
     conn.request("GET", maven_url, headers=headers)
@@ -120,10 +123,20 @@ except Exception as e:
     sys.exit()
 
 res = conn.getresponse()
+
+if res.status == 401:
+    ctypes.windll.user32.MessageBoxA(0, f"用户名或密码不正确".encode('gbk'), "凭证错误".encode('gbk'), 0x10)
+    sys.exit()
+
 read = res.read()
 data = read.decode("utf-8")
 
 soup = BeautifulSoup(data, 'html.parser')
+
+title = soup.find('title').text
+if title == 'Access Denied':
+    ctypes.windll.user32.MessageBoxA(0, f"用户名或密码不正确".encode('gbk'), "凭证错误".encode('gbk'), 0x10)
+    sys.exit()
 
 aTags = soup.find_all('a', text='HTML index')
 
@@ -166,7 +179,7 @@ def href_loop(_conn, _service_url, _headers):
                 href_loop(conn, _a_href, headers)
 
         else:
-            file_path = (download_path + _a_href).replace(maven_url, '')
+            file_path = download_path + _a_href.replace(":/", '').replace(":", "/")
             disk_path = os.path.dirname(os.path.abspath(file_path))
             if not os.path.exists(disk_path):
                 os.makedirs(disk_path)
