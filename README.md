@@ -18,6 +18,7 @@
     ```shell
     pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
     pip install PyInstaller
+    pip install BeautifulSoup4
     # 获取软件版本相关文件
     pyi-grab_version python.exe file_version.txt
     # 修改上述文件 file_version.txt，然后进行打包
