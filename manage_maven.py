@@ -226,7 +226,7 @@ class ManageMaven:
         self.execute_button_text = '上 传 文 件'
         self.create_mode_menu()
 
-        self.th = None
+        self.stop = None
 
         # 第一行
         self.frame1 = tkinter.Frame(self.root)
@@ -342,6 +342,9 @@ class ManageMaven:
         # self.file_menu.add_separator()
 
         # 在菜单项下面添加一个名为 退出 的选项
+        self.file_menu.add_command(label="停止", command=self.stop)
+
+        # 在菜单项下面添加一个名为 退出 的选项
         self.file_menu.add_command(label="退出", command=self.__quit__)
 
     def create_mode_menu(self):
@@ -442,8 +445,14 @@ class ManageMaven:
         """
         使用线程执行
         """
-        self.th = threading.Thread(target=self.execute_command)
-        self.th.start()
+        th = threading.Thread(target=self.execute_command)
+        th.start()
+
+    def stop(self):
+        """
+        停止线程
+        """
+        self.stop = True
 
     def execute_command(self):
         """
@@ -486,15 +495,33 @@ class ManageMaven:
             self.normal()
             return
 
-        execute_files = all_file_path(self.askdirectory_entry.get())
-
         authorization = basic(self.username_entry.get(), self.password_entry.get())
 
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                          'Chrome/98.0.4758.102 Safari/537.36',
-            'Authorization': authorization
+                          'Chrome/98.0.4758.102 Safari/537.36'
         }
+
+        if self.username_entry.get() != '' or self.password_entry.get() != '':
+            logging.info(f'使用用户名和密码')
+            # oss.sonatype.org 域名推荐缺省密码
+            headers['Authorization'] = authorization
+        else:
+            logging.info(f'未使用用户名和密码')
+
+        if self.mode.get() == 'upload':
+            self.upload(path, conn, headers)
+        else:
+            logging.warning(f'下载功能未开发完成')
+            ctypes.windll.user32.MessageBoxA(0, f"下载功能未开发完成".encode('gbk'),
+                                             f"{self.mode_label}警告".encode('gbk'), 0x10)
+            self.normal()
+
+    def upload(self, path, conn, headers):
+        """
+        上传
+        """
+        execute_files = all_file_path(self.askdirectory_entry.get())
 
         for execute_file in execute_files:
             execute_file_relpath = os.path.relpath(execute_file, self.askdirectory_entry.get())
@@ -536,6 +563,12 @@ class ManageMaven:
             else:
                 logging.warning(
                     f'未知状态码\t文件：{execute_file_relpath}\tHTTP状态：{res.status}\tHTTP返回值：{data.decode("utf-8")}')
+
+            if self.stop:
+                logging.info(f'停止{self.mode_label}')
+                self.normal()
+                self.stop = None
+                return
 
         self.normal()
 
