@@ -92,10 +92,6 @@
     <img alt="total lines" src="https://tokei.rs/b1/github/xuxiaowei-com-cn/manage-maven">
   </a>
 
-  <a target="_blank" href="https://hub.docker.com/r/xuxiaoweicomcn/manage-maven">
-    <img alt="Docker Image Version (latest semver)" src="https://img.shields.io/docker/v/xuxiaoweicomcn/manage-maven?sort=semver">
-  </a>
-
   <a target="_blank" href="https://www.apache.org/licenses/LICENSE-2.0">
     <img alt="code style" src="https://img.shields.io/badge/license-Apache 2-blue">
   </a>
